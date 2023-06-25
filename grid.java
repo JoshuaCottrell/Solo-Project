@@ -1,8 +1,3 @@
-public class grid {
-    // Fields (variables)
-
-    // Constructors
-
-    // Methods
+public class Grid {
     
 }
