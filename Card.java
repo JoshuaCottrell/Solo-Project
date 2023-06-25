@@ -1,11 +1,11 @@
 public class Card {
     // Enumerations
     public enum Rank {
-        TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
+        ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING
     }
 
     public enum Suit {
-        HEARTS, SPADES, CLUBS, DIAMONDS
+        SPADES, DIAMONDS, CLUBS, HEARTS
     }
 
     // Fields
