@@ -1,23 +1,33 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public class Player {
     // Fields
-    private List<Card> hand;
+    private ArrayList<Card> hand;
     private int score;
     private int bet;
     private int tricksWon;
+    private String playerName;
 
     // Constructor
-    public Player() {
-        hand = new ArrayList<>();
+    public Player(String playerName) {
+        hand = new ArrayList<Card>();
         score = 0;
         bet = 0;
         tricksWon = 0;
+        this.playerName = playerName;
+
     }
 
     // Getters and Setters
-    public List<Card> getHand() {
+    public String getName() {
+        return playerName;
+    }
+
+    public void setName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public ArrayList<Card> getHand() {
         return hand;
     }
 
@@ -58,5 +68,33 @@ public class Player {
     // Clear the player's hand
     public void clearHand() {
         hand.clear();
+    }
+
+    public void printHand() {
+        System.out.println(playerName + "'s hand:");
+        for (int i = 0; i < hand.size(); i++) {
+          System.out.println((i + 1) + ". " + hand.get(i));
+        }
+    }
+
+    public Card playCard(int index, Card.Suit leadSuit) {
+        if (index < 0 || index >= hand.size()) {
+            throw new IllegalArgumentException("Invalid index: " + index);
+        }
+        Card card = hand.get(index);
+        if (card.getSuit() != leadSuit) {
+            boolean hasSuit = false;
+            for (Card c : hand) {
+                if (c.getSuit() == leadSuit) {
+                    hasSuit = true;
+                    break;
+                }
+            }
+            if (hasSuit) {
+                throw new IllegalArgumentException("You must play a card of the lead suit (" + leadSuit + ")");
+            }
+        }
+        hand.remove(index);
+        return card;
     }
 }

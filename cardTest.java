@@ -6,7 +6,7 @@ public class cardTest {
     
 
     @Test
-    public void cardTest() {
+    public void testCard() {
         Card card = new Card(Card.Rank.ACE, Card.Suit.SPADES);
         assertEquals("ACE of SPADES", card.toString());
         card.setRank(Card.Rank.EIGHT);
