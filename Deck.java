@@ -10,14 +10,13 @@ public class Deck {
     public Deck() {
         cards = new ArrayList<>();
         initializeDeck();
-        shuffle();
     }
 
-    // Initialize the deck with 52 cards
+    // Initialize the deck with 52 cards in new card order
     private void initializeDeck() {
-        for (Card.Suit suit : Card.Suit.values()) {
-            for (Card.Rank rank : Card.Rank.values()) {
-                cards.add(new Card(rank, suit));
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 13; j++) {
+                cards.add(new Card(Card.Rank.values()[j], Card.Suit.values()[i]));
             }
         }
     }
