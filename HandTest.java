@@ -58,6 +58,7 @@ public class HandTest {
 
     @Test
     public void testPrintPlayableCardsWithoutMatchingSuit() {
+        System.out.println("Print playable hand normally");
         Card card1 = new Card(Suit.SPADES, Rank.ACE);
         Card card2 = new Card(Suit.CLUBS, Rank.KING);
         Card card3 = new Card(Suit.DIAMONDS, Rank.QUEEN);
@@ -70,6 +71,7 @@ public class HandTest {
 
     @Test
     public void testPrintHand() {
+        System.out.println("Print Hand Normal:");
         Card card1 = new Card(Suit.SPADES, Rank.ACE);
         Card card2 = new Card(Suit.CLUBS, Rank.KING);
         Card card3 = new Card(Suit.DIAMONDS, Rank.QUEEN);
