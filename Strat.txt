@@ -10,4 +10,3 @@ Rules of the game:
 - Player left of the dealer bets first and plays first
 - Winner of a trick plays next trick first
 - Every player bets before the round starts
-- 
