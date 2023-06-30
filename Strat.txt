@@ -1,0 +1,13 @@
+Components of the final game:
+- Cards 
+- Scoreboard
+- Player
+
+Rules of the game:
+- Same number of cards in hand as round number
+- Play 1 card per turn
+- Card suit must match leading suit if possible
+- Player left of the dealer bets first and plays first
+- Winner of a trick plays next trick first
+- Every player bets before the round starts
+- 
