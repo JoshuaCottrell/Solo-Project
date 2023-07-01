@@ -1,6 +1,10 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -52,34 +56,52 @@ public class HandTest {
         hand.addCard(card1);
         hand.addCard(card2);
         hand.addCard(card3);
-        hand.printPlayableCards(Suit.HEARTS);
-        // Manually verify the output
+
+        // Provide input to simulate player's choice
+        InputStream inputStream = new ByteArrayInputStream("1".getBytes());
+        System.setIn(inputStream);
+
+        // Call the method and verify the output
+        Card playedCard = hand.printPlayableCards(Suit.HEARTS);
+        assertEquals(card1, playedCard);
+
+        // Restore System.in
+        System.setIn(System.in);
     }
 
     @Test
     public void testPrintPlayableCardsWithoutMatchingSuit() {
-        System.out.println("Print playable hand normally");
         Card card1 = new Card(Suit.SPADES, Rank.ACE);
         Card card2 = new Card(Suit.CLUBS, Rank.KING);
         Card card3 = new Card(Suit.DIAMONDS, Rank.QUEEN);
         hand.addCard(card1);
         hand.addCard(card2);
         hand.addCard(card3);
-        hand.printPlayableCards(Suit.HEARTS);
-        // Manually verify the output
+
+        // Provide input to simulate player's choice
+        InputStream inputStream = new ByteArrayInputStream("1".getBytes());
+        System.setIn(inputStream);
+
+        // Call the method and verify the output
+        Card playedCard = hand.printPlayableCards(Suit.HEARTS);
+        assertEquals(card1, playedCard);
+
+        // Restore System.in
+        System.setIn(System.in);
     }
 
     @Test
     public void testPrintHand() {
-        System.out.println("Print Hand Normal:");
         Card card1 = new Card(Suit.SPADES, Rank.ACE);
         Card card2 = new Card(Suit.CLUBS, Rank.KING);
         Card card3 = new Card(Suit.DIAMONDS, Rank.QUEEN);
         hand.addCard(card1);
         hand.addCard(card2);
         hand.addCard(card3);
+
         hand.printHand();
         // Manually verify the output
+
     }
 
     @Test

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Hand {
     private List<Card> cards;
@@ -12,15 +13,16 @@ public class Hand {
         cards.add(card);
     }
 
-    public void removeCard(Card card) {
+    public Card removeCard(Card card) {
         cards.remove(card);
+        return card;
     }
 
     public List<Card> getCards() {
         return cards;
     }
 
-    public void printPlayableCards(Suit suit) {
+    public Card printPlayableCards(Suit suit) {
         System.out.println("Playable Cards:");
         boolean hasMatchingSuit = false;
         for (int i = 0; i < cards.size(); i++) {
@@ -32,9 +34,20 @@ public class Hand {
         }
         if (!hasMatchingSuit) {
             for (int i = 0; i < cards.size(); i++) {
-            System.out.println((i + 1) + ". " + cards.get(i));
+                System.out.println((i + 1) + ". " + cards.get(i));
             }
         }
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the number of the card you want to play: ");
+        int choice = scanner.nextInt();
+        while(!(choice >= 1 && choice <= cards.size())) {
+            System.out.println("Invalid choice! Please try again");
+            choice = scanner.nextInt();
+        }
+        Card selectedCard = cards.get(choice - 1);
+        System.out.println("You played: " + selectedCard);
+        scanner.close();
+        return removeCard(selectedCard);
     }
 
     public void printHand() {
