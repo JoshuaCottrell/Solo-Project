@@ -63,6 +63,13 @@ public class HandTest {
         Card playedCard = hand.printPlayableCards(Suit.HEARTS);
         assertEquals(card1, playedCard);
 
+        // Provide input to simulate player's choice
+        inputStream = new ByteArrayInputStream("1".getBytes());
+        System.setIn(inputStream);
+
+        playedCard = hand.printPlayableCards(Suit.DIAMONDS);
+        assertEquals(card3, playedCard);
+
         // Restore System.in
         System.setIn(System.in);
     }

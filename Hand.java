@@ -23,31 +23,30 @@ public class Hand {
     }
 
     public Card printPlayableCards(Suit suit) {
-        System.out.println("Playable Cards:");
-        boolean hasMatchingSuit = false;
-        for (int i = 0; i < cards.size(); i++) {
-            Card card = cards.get(i);
-            if (card.getSuit() == suit) {
-                System.out.println((i + 1) + ". " + card);
-                hasMatchingSuit = true;
-            }
-        }
-        if (!hasMatchingSuit) {
-            for (int i = 0; i < cards.size(); i++) {
-                System.out.println((i + 1) + ". " + cards.get(i));
-            }
-        }
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Playable Cards:");
+        List<Card> playableCards = new ArrayList<>();
+        for (Card card : cards) {
+            if (card.getSuit() == suit) {
+                playableCards.add(card);
+            }
+        }
+        if (playableCards.isEmpty()) {
+            playableCards.addAll(cards);
+        }
+        for (int i = 0; i < playableCards.size(); i++) {
+            System.out.println((i + 1) + ". " + playableCards.get(i));
+        }
         System.out.println("Enter the number of the card you want to play: ");
         int choice = scanner.nextInt();
-        while(!(choice >= 1 && choice <= cards.size())) {
+        while (!(choice >= 1 && choice <= playableCards.size())) {
             System.out.println("Invalid choice! Please try again");
             choice = scanner.nextInt();
         }
-        Card selectedCard = cards.get(choice - 1);
+        Card selectedCard = playableCards.get(choice - 1);
         System.out.println("You played: " + selectedCard);
-        scanner.close();
-        return removeCard(selectedCard);
+        cards.remove(selectedCard);
+        return selectedCard;
     }
 
     public void printHand() {
