@@ -1,4 +1,5 @@
 public class Player {
+    private String name;
     private Hand hand;
     private boolean isDealer;
     private int tricksWon;
@@ -11,6 +12,23 @@ public class Player {
         tricksWon = 0;
         bet = 0;
         score = 0;
+    }
+
+    public Player(String name) {
+        this.name = name;
+        hand = new Hand();
+        isDealer = false;
+        tricksWon = 0;
+        bet = 0;
+        score = 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Hand getHand() {
