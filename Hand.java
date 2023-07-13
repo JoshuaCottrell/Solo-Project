@@ -22,8 +22,15 @@ public class Hand {
         return cards;
     }
 
-    public Card printPlayableCards(Suit suit) {
+    public Card printPlayableCards(Suit suit, Boolean first) {
         Scanner scanner = new Scanner(System.in);
+        if (first) {
+            printHand();
+            Card selectedCard = cards.get(scanner.nextInt() - 1);
+            System.out.println("You played: " + selectedCard);
+            cards.remove(selectedCard);
+            return selectedCard;
+        }
         System.out.println("Playable Cards:");
         List<Card> playableCards = new ArrayList<>();
         for (Card card : cards) {

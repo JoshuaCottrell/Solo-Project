@@ -5,5 +5,7 @@ public enum Rounds {
     FOUR,
     FIVE,
     SIX,
-    SEVEN
+    SEVEN,
+    NO_TRUMP,
+    BLIND
 }

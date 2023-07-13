@@ -4,6 +4,7 @@ public class Game {
     private Player[] players;
     private int currentPlayerIndex;
     private int dealerIndex;
+    
 
     public Game() {
         int numPlayers = promptNumPlayers();
@@ -43,11 +44,20 @@ public class Game {
         // Set the dealer for the first round
         players[dealerIndex].setDealer(true);
 
-        // Distribute cards to each player
+        // Print Round
+        System.out.println("Round " + round + " - Dealer: " + players[dealerIndex].getName());
+
+        // Get cards and maxBet
         int numCards = round.ordinal() + 1;
+        if (numCards > 7) {
+            numCards = 7;
+        }
+
+        // Clear all players hands and then distribute new cards to each player
         Deck deck = new Deck();
         deck.shuffle();
         for (Player player : players) {
+            player.getHand().emptyHand();
             for (int i = 0; i < numCards; i++) {
                 Card card = deck.drawCard();
                 player.getHand().addCard(card);
@@ -56,18 +66,52 @@ public class Game {
 
         // Get bets from all players
         int totalBet = 0;
+        Player currentPlayer;
         for (int i = 0; i < players.length; i++) {
-            Player currentPlayer = players[currentPlayerIndex];
+            currentPlayer = players[currentPlayerIndex];
             // Get bet from the player
-            int maxBet = currentPlayer.getHand().getCards().size();
-            currentPlayer.setBet(promptBet(0, maxBet, currentPlayer, totalBet));
+            currentPlayer.setBet(promptBet(0, numCards, currentPlayer, totalBet));
             totalBet += currentPlayer.getBet();
             // Move to the next player
             currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
         }
 
         // Start playing the round
-        // TODO: Implement the logic for playing the round
+        Player winningPlayer = players[currentPlayerIndex]; // Starts as left of dealer
+        int winningPlayerIndex = currentPlayerIndex;
+        Card winningCard = new Card(Suit.CLUBS, Rank.ACE); // Placeholder card, card values don't matter.
+        Card leadCard = new Card(Suit.CLUBS, Rank.ACE); // Placeholder card, card values don't matter.
+        Card card;
+        for (int j = 0; j < numCards; j++) {
+            for (int i = 0; i < players.length; i++) {
+                currentPlayer = players[currentPlayerIndex];
+                // Play turn
+                System.out.println();
+                System.out.println(currentPlayer.getName() + ":");
+                if (currentPlayer == winningPlayer) { // First player sets lead
+                    leadCard = currentPlayer.getHand().printPlayableCards(leadCard.getSuit(), true);
+                    winningCard = leadCard;
+                }
+                else { // Non-first player turn
+                    card = currentPlayer.getHand().printPlayableCards(leadCard.getSuit(), false);
+                    if (compareCard(winningCard, card) == card) {
+                        winningPlayer = currentPlayer;
+                        winningPlayerIndex = currentPlayerIndex;
+                        winningCard = card;
+                    }
+                }
+                System.out.println();
+                System.out.println("Winning card: " + winningCard);
+                System.out.println("Played by: " + winningPlayer.getName());
+                // Move to the next player
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            }
+            winningPlayer.addTrick(1);
+            System.out.println(winningPlayer.getName() + " wins that trick!");
+            currentPlayerIndex = winningPlayerIndex;
+        }
+        return;
+        // TODO: Account for trump and special 7s
     }
 
     private int promptBet(int minBet, int maxBet, Player player, int totalBet) {
@@ -79,22 +123,52 @@ public class Game {
             if (bet < minBet || bet > maxBet) {
                 System.out.println("Invalid bet. Please enter a bet between " + minBet + " and " + maxBet + ".");
             }
-            if (player.isDealer() && (bet + totalBet == player.getHand().getCards().size())) {
+            if (player.isDealer() && (bet + totalBet == maxBet)) {
                 System.out.println("Invalid bet. The dealer cannot bet such that everyone wins.");
             }
-        } while (bet < minBet || bet > maxBet || (player.isDealer() && (bet + totalBet == player.getHand().getCards().size())));
+        } while (bet < minBet || bet > maxBet || (player.isDealer() && (bet + totalBet == maxBet)));
         return bet;
     }
 
+    private Card compareCard(Card winningCard, Card newCard) { // Need to account for trump
+        if (newCard.getSuit() == winningCard.getSuit()) {
+            if (newCard.getRank().ordinal() > winningCard.getRank().ordinal()) {
+                return newCard;
+            }
+        }
+        return winningCard;
+    }
     public static void main(String[] args) {
         Game game = new Game();
         Player[] players = game.getPlayers();
 
+        System.out.println();
         System.out.println("Number of players: " + players.length);
         for (int i = 0; i < players.length; i++) {
             System.out.println("Player " + (i + 1) + ": " + players[i].getName());
         }
+        System.out.println();
 
-        game.startRound(Rounds.ONE);
+        // Play to blind
+        for (int i = 0; i < Rounds.values().length; i++) {
+            game.startRound(Rounds.values()[i]);
+        }
+
+        // Play to 1
+        for (int i = Rounds.values().length-1; i >= 0; i--) {
+            game.startRound(Rounds.values()[i]);
+        }
+
+        // Print Results
+        Player winner = players[0]; // Random initialization, doesn't matter.
+        int topScore = 0;
+        for (Player player : players) {
+            if (player.getScore() > topScore) {
+                topScore = player.getScore();
+                winner = player;
+            }
+        }
+        System.out.println(winner.getName() + " wins with a score of " + topScore + "!");
+        // TODO: Account for ties and such.
     }
 }

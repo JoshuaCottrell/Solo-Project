@@ -60,14 +60,14 @@ public class HandTest {
         System.setIn(inputStream);
 
         // Call the method and verify the output
-        Card playedCard = hand.printPlayableCards(Suit.HEARTS);
+        Card playedCard = hand.printPlayableCards(Suit.HEARTS, false);
         assertEquals(card1, playedCard);
 
         // Provide input to simulate player's choice
         inputStream = new ByteArrayInputStream("1".getBytes());
         System.setIn(inputStream);
 
-        playedCard = hand.printPlayableCards(Suit.DIAMONDS);
+        playedCard = hand.printPlayableCards(Suit.DIAMONDS, false);
         assertEquals(card3, playedCard);
 
         // Restore System.in
@@ -88,7 +88,7 @@ public class HandTest {
         System.setIn(inputStream);
 
         // Call the method and verify the output
-        Card playedCard = hand.printPlayableCards(Suit.HEARTS);
+        Card playedCard = hand.printPlayableCards(Suit.HEARTS, false);
         assertEquals(card1, playedCard);
 
         // Restore System.in
