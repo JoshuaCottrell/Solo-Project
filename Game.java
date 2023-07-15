@@ -64,11 +64,23 @@ public class Game {
             }
         }
 
+        Suit trump = Suit.CLUBS;
+        // Get Trump
+        if (round != Rounds.NO_TRUMP) {
+            trump = deck.drawCard().getSuit();
+        }
+
         // Get bets from all players
         int totalBet = 0;
         Player currentPlayer;
         for (int i = 0; i < players.length; i++) {
             currentPlayer = players[currentPlayerIndex];
+            // If not blind, print hand first
+            if (round != Rounds.BLIND) {
+                System.out.println("Current Hand:");
+                currentPlayer.getHand().printHand();
+            }
+            System.out.println("Trump: " + trump.toString());
             // Get bet from the player
             currentPlayer.setBet(promptBet(0, numCards, currentPlayer, totalBet));
             totalBet += currentPlayer.getBet();
@@ -94,7 +106,7 @@ public class Game {
                 }
                 else { // Non-first player turn
                     card = currentPlayer.getHand().printPlayableCards(leadCard.getSuit(), false);
-                    if (compareCard(winningCard, card) == card) {
+                    if (compareCard(winningCard, card, trump, round) == card) {
                         winningPlayer = currentPlayer;
                         winningPlayerIndex = currentPlayerIndex;
                         winningCard = card;
@@ -110,8 +122,15 @@ public class Game {
             System.out.println(winningPlayer.getName() + " wins that trick!");
             currentPlayerIndex = winningPlayerIndex;
         }
+        // Calculate score for the round
+        for (Player player : players) {
+             if (player.getBet() == player.getTricksWon()) {
+                player.addToScore(numCards + player.getBet());
+             }
+             player.setTricksWon(0);
+             player.setBet(0);
+        }
         return;
-        // TODO: Account for trump and special 7s
     }
 
     private int promptBet(int minBet, int maxBet, Player player, int totalBet) {
@@ -130,9 +149,14 @@ public class Game {
         return bet;
     }
 
-    private Card compareCard(Card winningCard, Card newCard) { // Need to account for trump
+    private Card compareCard(Card winningCard, Card newCard, Suit trump, Rounds curRound) {
         if (newCard.getSuit() == winningCard.getSuit()) {
             if (newCard.getRank().ordinal() > winningCard.getRank().ordinal()) {
+                return newCard;
+            }
+        }
+        else if (newCard.getSuit() == trump) { // If both are trump previous if statement accounts for it
+            if (curRound != Rounds.NO_TRUMP) { // Do nothing if this is a no trump round
                 return newCard;
             }
         }
@@ -150,12 +174,12 @@ public class Game {
         System.out.println();
 
         // Play to blind
-        for (int i = 0; i < Rounds.values().length; i++) {
+        for (int i = 6; i < Rounds.values().length; i++) {
             game.startRound(Rounds.values()[i]);
         }
 
         // Play to 1
-        for (int i = Rounds.values().length-1; i >= 0; i--) {
+        for (int i = Rounds.values().length-2; i >= 6; i--) {
             game.startRound(Rounds.values()[i]);
         }
 
@@ -170,5 +194,6 @@ public class Game {
         }
         System.out.println(winner.getName() + " wins with a score of " + topScore + "!");
         // TODO: Account for ties and such.
+        // TODO: Print Scoreboard/Leaderboard
     }
 }

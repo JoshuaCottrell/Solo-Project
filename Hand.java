@@ -25,7 +25,9 @@ public class Hand {
     public Card printPlayableCards(Suit suit, Boolean first) {
         Scanner scanner = new Scanner(System.in);
         if (first) {
+            System.out.println("Playable Cards:");
             printHand();
+            System.out.println("Enter the number of the card you want to play: ");
             Card selectedCard = cards.get(scanner.nextInt() - 1);
             System.out.println("You played: " + selectedCard);
             cards.remove(selectedCard);
@@ -57,7 +59,6 @@ public class Hand {
     }
 
     public void printHand() {
-        System.out.println("Current Hand:");
         for (int i = 0; i < cards.size(); i++) {
             System.out.println((i + 1) + ". " + cards.get(i));
         }
