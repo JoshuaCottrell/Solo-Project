@@ -3,6 +3,7 @@ from Card import Card
 from Suit import Suit
 from Rank import Rank
 
+
 class Deck:
     def __init__(self):
         self.cards = []
@@ -11,7 +12,9 @@ class Deck:
     def initialize_deck(self):
         for suit in Suit:
             for rank in Rank:
-                self.cards.append(Card(suit, rank))
+                card = Card(suit, rank)
+                card.load_image()  # Load the image for each card
+                self.cards.append(card)
 
     def shuffle(self):
         random.shuffle(self.cards)
@@ -23,7 +26,8 @@ class Deck:
 
     def get_remaining_cards(self):
         return len(self.cards)
-    
-    def printCards(self):
-        for card in self.cards:
-            print(card)
+
+    def draw_card_image(self, surface, x, y):
+        if len(self.cards) > 0:
+            card = self.cards[-1]
+            card.draw(surface, x, y)
