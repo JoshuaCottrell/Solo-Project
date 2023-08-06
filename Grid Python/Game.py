@@ -16,6 +16,11 @@ class Game:
         self.deck.shuffle()
         self.trump_card = None
         self.input_text = ""
+        self.round = Rounds.ONE
+        self.current_player = None
+        self.card_in_middle = None
+        self.card_width = 100
+        self.card_height = 140
         pygame.init()
         window_width = 1280
         window_height = 720
@@ -38,9 +43,20 @@ class Game:
 
     def handle_events(self):
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left mouse button clicked
+                    mouse_pos = pygame.mouse.get_pos()
+                    for card in self.current_player.get_hand().get_cards():
+                        if card.rect.collidepoint(mouse_pos):
+                             # Card clicked, create a copy and move it to the middle of the screen
+                            card_copy = Card(card.suit, card.rank)
+                            card_copy.load_image()
+                            card_copy.rect.center = (self.window.get_width() // 2, self.window.get_height() // 2)
+                            self.card_in_middle = card_copy
+                            self.current_player.get_hand().remove_card(card)
 
     def prompt_players(self):
 
@@ -79,7 +95,7 @@ class Game:
         button_rect = button_text.get_rect(center=(button_x + 50, button_y + 25))
         self.window.blit(button_text, button_rect)
 
-    def draw_game(self):
+    def draw_background(self):
         # Clear the previous elements
         self.window.fill((255, 255, 255))
 
@@ -92,62 +108,61 @@ class Game:
         # Draw the background image
         self.window.blit(background_image, (0, 0))
 
+    def draw_deck(self):
         # Calculate the center position of the deck
         deck_x = self.window.get_width() // 2 + 200
         deck_y = self.window.get_height() // 2 - 100
 
-        # Resize the deck image to a smaller size
-        deck_width = 100
-        deck_height = 140
-
         # Draw deck
         deck_image = pygame.image.load("Grid Python/Images/card_back.png")
-        deck_image = pygame.transform.scale(deck_image, (deck_width, deck_height))
+        deck_image = pygame.transform.scale(deck_image, (self.card_width, self.card_height))
         self.window.blit(deck_image, (deck_x, deck_y))
 
+    def draw_trump(self):
         # Calculate the position of the trump card
-        trump_x = deck_x - 10
-        trump_y = deck_y
-
-        # Resize the trump card image to a smaller size
-        trump_width = 100
-        trump_height = 140
+        trump_x = self.window.get_width() // 2 + 190
+        trump_y = self.window.get_height() // 2 - 100
 
         # Draw trump card
-        trump_image = pygame.transform.scale(self.trump_card.image, (trump_width, trump_height))
+        trump_image = pygame.transform.scale(self.trump_card.image, (self.card_width, self.card_height))
         self.window.blit(trump_image, (trump_x, trump_y))
 
+    def draw_info(self):
+        # Draw current player
+        font = pygame.font.Font(None, 50)
+        prompt_text = font.render(f"{self.current_player.get_name()}", True, (0, 0, 0))
+        prompt_rect = prompt_text.get_rect(center=(100, 50))
+        self.window.blit(prompt_text, prompt_rect)
+
+    def draw_players_hand(self):
         # Display each player's card near the bottom of the screen
         card_x = 50
         card_y = self.window.get_height() - 200
         card_spacing = 110
 
-        # Resize the card image to a smaller size
-        card_width = 100
-        card_height = 140
-
         # Draw the player's card with the resized image
         player_hand = self.players[0].get_hand()
         for i, card in enumerate(player_hand.get_cards()):
-            card_image = pygame.transform.scale(card.image, (card_width, card_height))
+            card_image = pygame.transform.scale(card.image, (self.card_width, self.card_height))
             self.window.blit(card_image, (card_x + i * card_spacing, card_y))
 
+    def draw_winning_card(self):
+        # Draw cards in middle
+        if self.card_in_middle:
+            middle_card_image = pygame.transform.scale(self.card_in_middle.image, (self.card_width, self.card_height))
+            self.window.blit(middle_card_image, (self.window.get_width() // 2, self.window.get_height() // 2 - 100))
 
-        # Update the display
-        pygame.display.update()
-
-
-    
-    def deal_round(self, players, round):
-        if round.value >= 7:
+    def deal_round(self):
+        if self.round.value >= 7:
             num_cards = 7
         else:
-            num_cards = round.value
+            num_cards = self.round.value
 
-        for player in players:
+        for player in self.players:
             for i in range(num_cards):
                 card = self.deck.draw_card()
                 player.get_hand().add_card(card)
+        self.round = Rounds(self.round.value+1) # Increment round by 1
         return
 
 
@@ -177,19 +192,38 @@ class Game:
             player = Player(player_name)
             self.players.append(player)
 
-        # Deal the first round to each player
-        self.deal_round(self.players, Rounds.ONE)
-
         # Calculate trump
         self.trump_card = self.deck.draw_card()
+
+        # Set first player
+        self.current_player = self.players[0]
+
+        new_round = True
 
         clock = pygame.time.Clock()
         running = True
 
         while running:
+
+            if new_round:
+                self.deal_round()
+                new_round = False
+
             self.handle_events()
 
-            self.draw_game()
+            self.draw_background()
+
+            self.draw_deck()
+
+            self.draw_trump()
+
+            self.draw_info()
+
+            self.draw_players_hand()
+
+            self.draw_winning_card()
+
+            pygame.display.update()
 
             clock.tick(240)
 
