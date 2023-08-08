@@ -16,7 +16,7 @@ class Game:
         self.deck.shuffle()
         self.trump_card = None
         self.input_text = ""
-        self.round = Rounds.NO_TRUMP
+        self.round = Rounds.THREE
         self.current_player = None
         self.current_player_index = 0
         self.winning_card = None
@@ -28,6 +28,7 @@ class Game:
         self.loop_bets = None
         self.total_bets = 0
         self.first_card = None
+        self.dealer_index = 0
         pygame.init()
         window_width = 1280
         window_height = 720
@@ -57,6 +58,7 @@ class Game:
                     mouse_pos = pygame.mouse.get_pos()
                     for card in self.current_player.get_hand().get_cards(): # If a card was clicked
                         if card.rect.collidepoint(mouse_pos):
+
                             # Card clicked, see if it is new winning card
                             if (self.winning_card): # If there is already a winning card
                                 if (card == self.compare_card(card)): # And the card clicked beats it
@@ -73,16 +75,21 @@ class Game:
                                 self.winning_card = card_copy
                                 self.first_card = card_copy
                                 self.winning_card_player = self.current_player
+
                             # Remove card
                             self.current_player.get_hand().remove_card(card)
+
                             # Go to next player
                             self.current_player_index = (self.current_player_index + 1) % len(self.players)
                             self.current_player = self.players[self.current_player_index]
+
+                            # If every player has played a card, reset round
                             if self.current_player == self.turn_first_player:
                                 self.winning_card_player.add_trick()
                                 self.winning_card = None
                                 self.winning_card_player = None
                                 self.first_card = None
+
                                 # If players have no cards left, reset and go to next round
                                 if len(self.current_player.get_hand().get_cards()) == 0:
                                     self.new_round = True
@@ -97,11 +104,24 @@ class Game:
                                         self.round = Rounds(self.round.value + 1)
                                     else:
                                         self.round = Rounds(self.round.value - 1)
+
                                     # Reset for new round
                                     self.deck = Deck()
                                     self.deck.shuffle()
+                                    self.trump_card = self.deck.draw_card()
+                                    if self.round.value > 7:
+                                        round_score = 7
+                                    else:
+                                        round_score = self.round.value
                                     for player in self.players:
+                                        if player.get_bet() == player.get_tricks_won():
+                                            player.add_to_score(player.get_bet() + round_score)
                                         player.set_tricks_won(0)
+                                    # Set new dealer and first player
+                                    self.players[self.dealer_index].set_dealer(False)
+                                    self.dealer_index = (self.dealer_index + 1) % len(self.players)
+                                    self.players[self.dealer_index].set_dealer(True)
+                                    self.current_player_index = (self.dealer_index + 1) % len(self.players)
                                         
 
                             break
@@ -137,7 +157,7 @@ class Game:
         button_x = self.window.get_width() // 2 - 50
         button_y = 200
 
-        # Draw the button
+        # Draw submit information
         submit_text = font.render("Press ENTER to submit", True, (0, 0, 0))
         submit_text_rect = submit_text.get_rect(center = (self.window.get_width() // 2, 250))
         self.window.blit(submit_text, submit_text_rect)
@@ -174,6 +194,12 @@ class Game:
         self.trump_card.rect.center = (trump_x, trump_y)
         self.window.blit(self.trump_card.image, (trump_x, trump_y))
 
+        #Draw trump text
+        font = pygame.font.Font(None, 30)
+        trump_text = font.render(f"Trump: {self.trump_card.get_suit()}", True, (0, 0, 0))
+        trump_text_rect = trump_text.get_rect(center=(self.window.get_width() // 2 + 250, self.window.get_height() // 2 - 120))
+        self.window.blit(trump_text, trump_text_rect)
+
     def draw_info(self):
         # Draw current player
         font = pygame.font.Font(None, 50)
@@ -192,12 +218,18 @@ class Game:
         self.window.blit(bet_text, bet_text_rect)
 
         # Draw Total Score
-        # TODO
+        bet_text = font.render(f"Score: {self.current_player.get_score()}", True, (0, 0, 0))
+        bet_text_rect = bet_text.get_rect(center = (120, 200))
+        self.window.blit(bet_text, bet_text_rect)
 
         # Draw Round
         round_text = font.render(f"Round: {self.round}", True, (0, 0, 0))
-        round_text_rect = round_text.get_rect(center = (120, 200))
+        if self.round != Rounds.NO_TRUMP:
+            round_text_rect = round_text.get_rect(center = (120, 250))
+        else:
+            round_text_rect = round_text.get_rect(center = (150, 250))
         self.window.blit(round_text, round_text_rect)
+            
 
         #Draw winning card and winning card player
         font = pygame.font.Font(None, 30)
@@ -210,12 +242,6 @@ class Game:
             winning_card_player_text = font.render("Played By: ", True, (0, 0, 0))
         winning_card_player_text_rect = winning_card_player_text.get_rect(center=(self.window.get_width() // 2 + 50, self.window.get_height() // 2 + 60))
         self.window.blit(winning_card_player_text, winning_card_player_text_rect)
-
-        #Draw trump text
-        if self.round != Rounds.NO_TRUMP:
-            trump_text = font.render(f"Trump: {self.trump_card.get_suit()}", True, (0, 0, 0))
-            trump_text_rect = trump_text.get_rect(center=(self.window.get_width() // 2 + 250, self.window.get_height() // 2 - 120))
-            self.window.blit(trump_text, trump_text_rect)
         
     def draw_players_hand(self):
         # Display each player's card near the bottom of the screen
@@ -307,6 +333,11 @@ class Game:
         text_surface = font.render(self.input_text, True, (0, 0, 0))
         self.window.blit(text_surface, (input_x + 5, input_y + 5))
 
+        # Draw Round
+        submit_text = font.render(f"Round: {self.round}", True, (0, 0, 0))
+        submit_text_rect = submit_text.get_rect(center = (self.window.get_width() // 2, 250))
+        self.window.blit(submit_text, submit_text_rect)
+
 
     def handle_bets(self):
          for event in pygame.event.get():
@@ -355,6 +386,9 @@ class Game:
 
             if (self.round != Rounds.BLIND):
                 self.draw_players_hand()
+            
+            if (self.round != Rounds.NO_TRUMP):
+                self.draw_trump()
 
             self.get_bets()
 
@@ -379,10 +413,10 @@ class Game:
         self.trump_card = self.deck.draw_card()
 
         # Set dealer
-        self.players[self.current_player_index].set_dealer(True)
+        self.players[self.dealer_index].set_dealer(True)
 
         # Set first player
-        self.current_player_index = (self.current_player_index+1) % len(self.players)
+        self.current_player_index = (self.dealer_index + 1) % len(self.players)
         self.current_player = self.players[self.current_player_index]
 
 
