@@ -12,4 +12,9 @@ class Rounds(Enum):
     BLIND = 9
 
     def __str__(self):
-        return f"{self.name}"
+        if self.value <= 7:
+            return f"{self.name.title()}"
+        elif self.value == 8:
+            return "No Trump"
+        else:
+            return "Blind"

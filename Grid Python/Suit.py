@@ -7,4 +7,4 @@ class Suit(Enum):
     HEARTS = 4
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name.title()}"
